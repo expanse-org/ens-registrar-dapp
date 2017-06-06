@@ -6,11 +6,11 @@
   {{/if}}
 
   <p>
-      This name was registered at <em>{{registrationDate}}</em>. Owner offered to pay up to <em>{{highestBid}} ether</em>.
+      This name was registered at <em>{{registrationDate}}</em>. Owner offered to pay up to <em>{{highestBid}} expanse</em>.
   {{#if noBids}}
-      No other bid was above the minimum of <em>0.01 ether</em>.
+      No other bid was above the minimum of <em>1.00 expanse</em>.
   {{else}}
-      Second highest bid was <em>{{finalValue}} ether</em>.
+      Second highest bid was <em>{{finalValue}} expanse</em>.
   {{/if}}
   </p>
 
@@ -21,7 +21,7 @@
     {{/if}}
     <p>Needs to be renewed by: <strong>{{renewalDate}}</strong></p>
 
-    <p> Owner hasn't set up anything{{#if canRefund}}, or claimed their <strong>{{dapp_formatBalance refund "0,0.00[0000]"}} ether</strong> ether {{/if}} yet.</p>
+    <p> Owner hasn't set up anything{{#if canRefund}}, or claimed their <strong>{{dapp_formatBalance refund "0,0.00[0000]"}} expanse</strong> expanse {{/if}} yet.</p>
 
     {{#if hasNode}}
       {{#if isMine}}
@@ -32,7 +32,7 @@
           {{else}}
             Set up your name
             {{#if canRefund}}
-            (and get {{dapp_formatBalance refund "0,0.00[0000]"}}  ether back)
+            (and get {{dapp_formatBalance refund "0,0.00[0000]"}}  expanse back)
             {{/if}}
           {{/if}}
         </button>
@@ -112,7 +112,7 @@
       </p>
       {{#if isMine}}
         <p>
-          A resolver is a contract that can answer queries about your domain. You can choose any resolver but at the moment we deployed a basic resolver that can answer about expanse addresses and content hashes. 
+          A resolver is a contract that can answer queries about your domain. You can choose any resolver but at the moment we deployed a basic resolver that can answer about expanse addresses and content hashes.
         </p>
         {{#if (TemplateVar.get 'settingResolver')}}
           <button class="dapp-block-button disabled dapp-small" disabled> Setting resolver... </button>
@@ -143,7 +143,7 @@
         {{/if}}
         <br>
         {{#if canRelease}}
-         <p>If you don't want to hold this name anymore, you can release it and get <strong>{{finalValue}} ether</strong> back. <br></p>
+         <p>If you don't want to hold this name anymore, you can release it and get <strong>{{finalValue}} expanse</strong> back. <br></p>
 
         {{#if releasing}}
         <button class="dapp-block-button disabled dapp-small" disabled>Releasing...</button>
@@ -153,7 +153,7 @@
 
 
         {{else}}
-         <p>If you don't want to hold this name anymore, you'll be able to release it in <strong> {{releaseDate}}</strong> and get <strong>{{finalValue}} ether</strong> back.</p>
+         <p>If you don't want to hold this name anymore, you'll be able to release it in <strong> {{releaseDate}}</strong> and get <strong>{{finalValue}} expanse</strong> back.</p>
         {{/if}}
 
     </div>
@@ -180,11 +180,11 @@
 
     <ul>
         <li>
-            <span class="big-numeral">{{finalValue}}</span> <span class="unit">ether</span> locked in this name
+            <span class="big-numeral">{{finalValue}}</span> <span class="unit">expanse</span> locked in this name
         </li>
         {{#if canRefund}}
         <li>
-            <span class="big-numeral">{{deedBalance}}</span> <span class="unit">ether</span> still held in this name
+            <span class="big-numeral">{{deedBalance}}</span> <span class="unit">expanse</span> still held in this name
         </li>
         {{/if}}
 
