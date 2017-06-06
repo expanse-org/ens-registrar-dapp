@@ -7,7 +7,7 @@ Template['status-open'].onCreated(function() {
     if (!err && accounts && accounts.length > 0) {
       TemplateVar.set(template, 'mainAccount', accounts[0]);
     }
-  })  
+  })
 });
 
 Template['status-open'].events({
@@ -16,7 +16,7 @@ Template['status-open'].events({
     let template = Template.instance();
     const gasPrice = TemplateVar.getFrom('.dapp-select-gas-price', 'gasPrice') || web3.toWei(20, 'shannon');
     var hashes = TemplateVar.getFrom('.new-bid', 'hashesArray');
-    let mainAccount = TemplateVar.get(template, 'mainAccount');    
+    let mainAccount = TemplateVar.get(template, 'mainAccount');
 
     // check if hashes are present
     if (!hashes || !(hashes.length > 0)) {
@@ -47,7 +47,7 @@ Template['status-open'].events({
       }, Helpers.getTxHandler({
         onDone: () => TemplateVar.set(template, 'opening-' + name, false),
         onSuccess: () => {
-          Names.upsert({name: name},{$set: {fullname: name + ".eth", mode: 'open', watched: true}});
+          Names.upsert({name: name},{$set: {fullname: name + ".dapp", mode: 'open', watched: true}});
           Helpers.refreshStatus();
         }
       }));

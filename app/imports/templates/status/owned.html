@@ -1,15 +1,15 @@
 <template name="status-owned">
   {{#if isMine}}
-    <h1 class="domain-name">You own <strong>{{TemplateVar.get 'name'}}</strong></h1> 
+    <h1 class="domain-name">You own <strong>{{TemplateVar.get 'name'}}</strong></h1>
   {{else}}
-    <h1 class="domain-name"><strong>{{TemplateVar.get 'name'}}</strong> is owned</h1> 
+    <h1 class="domain-name"><strong>{{TemplateVar.get 'name'}}</strong> is owned</h1>
   {{/if}}
 
   <p>
-      This name was registered at <em>{{registrationDate}}</em>. Owner offered to pay up to <em>{{highestBid}} ether</em>. 
-  {{#if noBids}} 
+      This name was registered at <em>{{registrationDate}}</em>. Owner offered to pay up to <em>{{highestBid}} ether</em>.
+  {{#if noBids}}
       No other bid was above the minimum of <em>0.01 ether</em>.
-  {{else}} 
+  {{else}}
       Second highest bid was <em>{{finalValue}} ether</em>.
   {{/if}}
   </p>
@@ -19,7 +19,7 @@
     {{#if hasOwner}}
       <p>Currently assigned to: {{> components_address addr=owner}} </p>
     {{/if}}
-    <p>Needs to be renewed by: <strong>{{renewalDate}}</strong></p> 
+    <p>Needs to be renewed by: <strong>{{renewalDate}}</strong></p>
 
     <p> Owner hasn't set up anything{{#if canRefund}}, or claimed their <strong>{{dapp_formatBalance refund "0,0.00[0000]"}} ether</strong> ether {{/if}} yet.</p>
 
@@ -30,7 +30,7 @@
           {{#if finalizing}}
             Setting it up...
           {{else}}
-            Set up your name 
+            Set up your name
             {{#if canRefund}}
             (and get {{dapp_formatBalance refund "0,0.00[0000]"}}  ether back)
             {{/if}}
@@ -38,26 +38,26 @@
         </button>
 
       {{else}}
-        <button class="dapp-block-button disabled" disabled>Only owner can set up</button>      
+        <button class="dapp-block-button disabled" disabled>Only owner can set up</button>
       {{/if}}
     {{else}}
     {{> components_noNode}}
-    {{/if}} 
+    {{/if}}
 
   {{else}}
 
     <p>Owned by: {{> components_address addr=owner}} </p>
     <p>Needs to be renewed by: <strong>{{renewalDate}}</strong></p>
- 
+
 
   <div class="records-section">
     <hr>
     {{#if (TemplateVar.get 'hasSetResolver')}}
       <p class="addr-record">
-        <h3>Main Ethereum address:</h3>
+        <h3>Main Expanse address:</h3>
         {{#if (TemplateVar.get 'editingAddr')}}
           {{> dapp_addressInput }} <br>
-          
+
           {{#if (TemplateVar.get 'settingAddr')}}
             <button class="dapp-block-button disabled dapp-small" disabled>Applying...</button>
             <button class="dapp-block-button disabled dapp-small" disabled>Cancel</button>
@@ -65,7 +65,7 @@
             <button class="dapp-block-button set-addr dapp-small">Apply</button>
             <button class="dapp-block-button cancel-edit-addr dapp-small">Cancel</button>
           {{/if}}
-          
+
         {{else}}
           {{#if records.addr}}
             {{> components_address addr=records.addr }} <br><br>
@@ -82,7 +82,7 @@
 
         {{#if (TemplateVar.get 'editingHash')}}
           <input type="text" class="content-input" value="{{TemplateVar.get 'newHash'}}"> <br><br>
-          
+
           {{#if (TemplateVar.get 'settingHash')}}
             <button class="dapp-block-button disabled dapp-small" disabled>Applying...</button>
             <button class="dapp-block-button disabled dapp-small" disabled>Cancel</button>
@@ -90,7 +90,7 @@
             <button class="dapp-block-button set-hash dapp-small">Apply</button>
             <button class="dapp-block-button cancel-edit-hash dapp-small">Cancel</button>
           {{/if}}
-          
+
         {{else}}
           {{#if records.content}}
             <a href="bzz://{{records.content}}/">bzz://{{records.content}}/</a> <br><br>
@@ -112,7 +112,7 @@
       </p>
       {{#if isMine}}
         <p>
-          A resolver is a contract that can answer queries about your domain. You can choose any resolver but at the moment we deployed a basic resolver that can answer about ethereum addresses and content hashes. 
+          A resolver is a contract that can answer queries about your domain. You can choose any resolver but at the moment we deployed a basic resolver that can answer about expanse addresses and content hashes. 
         </p>
         {{#if (TemplateVar.get 'settingResolver')}}
           <button class="dapp-block-button disabled dapp-small" disabled> Setting resolver... </button>
@@ -123,15 +123,15 @@
     {{/if}}
   </div>
 
-  
+
     {{#if isMine}}
     <div class="transfer-section">
-        <hr>    
+        <hr>
         <h3>Transfer or Release</h3>
         <p>Transfer ownership of <strong>{{name}}</strong> to another account <br></p>
         <p><strong>ATTENTION: THIS IS IRREVERSIBLE</strong> once a name is transferred, only the new owner can transfer it back. Transferring a name also transfers the deposit to the new owner. Make sure you know what you're doing.</p>
         <p>
-        Account to transfer the name to: 
+        Account to transfer the name to:
         </p>
         <p>
         {{> dapp_addressInput }}
@@ -155,7 +155,7 @@
         {{else}}
          <p>If you don't want to hold this name anymore, you'll be able to release it in <strong> {{releaseDate}}</strong> and get <strong>{{finalValue}} ether</strong> back.</p>
         {{/if}}
-        
+
     </div>
     {{/if}}  <!-- /if mine -->
   {{/if}}   <!-- /if needsFinalizing -->
@@ -170,7 +170,7 @@
         {{> components_bid bid=bid status='owned' }}
         {{/each}}
     </div>
-    {{/if}}  
+    {{/if}}
 </template>
 
 <template name="aside-owned">
@@ -187,6 +187,6 @@
             <span class="big-numeral">{{deedBalance}}</span> <span class="unit">ether</span> still held in this name
         </li>
         {{/if}}
-        
+
     </ul>
 </template>

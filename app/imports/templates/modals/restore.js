@@ -5,7 +5,7 @@ function checkBids(data) {
     var bids = data.MyBids;
   } else {
     throw 'Unexpected format';
-  }  
+  }
 
   if (data.length == 0) {
     throw 'No bids found on file';
@@ -38,13 +38,13 @@ Template['modals_restore'].onRendered(function() {
       try {
         data = JSON.parse(e.target.result);
         if (Array.isArray(data)) {
-          bids = data; 
+          bids = data;
         } else if (typeof data == 'object' && data.MyBids) {
-          bids = data.MyBids; 
-          pendingBids = data.PendingBids; 
+          bids = data.MyBids;
+          pendingBids = data.PendingBids;
         } else {
           throw 'Unexpected format';
-        }      
+        }
       } catch(e) {
         template.fileError.set('Can\'t parse file. ' + e);
        return;
@@ -65,12 +65,12 @@ Template['modals_restore'].onRendered(function() {
      if (pendingBids) {
       template.pendingBids.set(
         pendingBids.filter(bid => !PendingBids.findOne({ "_id": bid._id }))
-      );     
+      );
      }
     };
     reader.readAsText(file);
   }
-  
+
   var inputElement = document.getElementById("restore-input");
   inputElement.addEventListener("change", handleFiles, false);
 })
@@ -88,7 +88,7 @@ Template['modals_restore'].events({
           insertCount++;
         };
         console.log('bid inserted', bid)
-        Names.upsert({name: bid.name}, { $set: {fullname: bid.name + '.eth', watched: true}});
+        Names.upsert({name: bid.name}, { $set: {fullname: bid.name + '.dapp', watched: true}});
 
       })
       if (pendingBids) {
@@ -99,17 +99,17 @@ Template['modals_restore'].events({
             insertCount++;
           };
           console.log('bid inserted', bid)
-          Names.upsert({name: bid.name}, { $set: {fullname: bid.name + '.eth', watched: true}});
+          Names.upsert({name: bid.name}, { $set: {fullname: bid.name + '.dapp', watched: true}});
 
-        })      
+        })
       }
       alert(`${insertCount} bids successfully imported.`);
-      
+
       // Reset file input
       let input = document.getElementById("restore-input");
       input.type = '';
       input.type = 'file';
-      
+
       //Reset state
       template.fileError.set(null)
       template.allBids.set(null)

@@ -24,12 +24,12 @@ export default ethereum = (function() {
     return new Promise((resolve, reject) => {
       if(typeof web3 !== 'undefined') {
         web3 = new Web3(web3.currentProvider);
-        LocalStore.set('hasNode', true);        
+        LocalStore.set('hasNode', true);
       } else {
         let Web3 = require('web3');
         // web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
         // web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/NEefAs8cNxYfiJsYCQjc"));
-        web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/NEefAs8cNxYfiJsYCQjc"));
+        web3 = new Web3(new Web3.providers.HttpProvider("http://staging.expanse.tech:9656"));
         LocalStore.set('hasNode', false);
 
       }
@@ -50,14 +50,14 @@ export default ethereum = (function() {
           resolve(web3);
         } else if (attempts <= 0) {
           console.log('checking..');
-          reportStatus('Ethereum network is disconnected. Awaiting connection...');
+          reportStatus('Expanse network is disconnected. Awaiting connection...');
         }
       }
       checkInterval = setInterval(check, 800);
       check();
     });
   }
-  
+
   function checkNetwork() {
     return new Promise((resolve, reject) => {
       web3.eth.getBlock(0, function(e, res){
@@ -67,20 +67,10 @@ export default ethereum = (function() {
         console.log('checkNetwork', res.hash)
         networkId = res.hash.slice(2,8);
         switch(res.hash) {
-          case '0x41941023680923e0fe4d74a34bdac8141f2540e3ae90623718e47d66d1ca4a2d':
-            network='ropsten';
-            ensAddress='0x112234455c3a32fd11230c42e7bccd4a84e02010';
-            publishedAtBlock = 25409;
-            resolve();
-            break;
-          case '0x0cd786a2425d16f152c658316c423e6ce1181e15c3295826d7c9904cba9ce303':
-            network='morden';
-            reject(errors.invalidNetwork);
-            break;
-          case '0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3':
+          case '0x2fe75cf9ba10cb1105e1750d872911e75365ba24fdd5db7f099445c901fea895':
             network='main';
-            ensAddress='0x314159265dd8dbb310642f98f50c066173c1259b';
-            publishedAtBlock = 3605331;
+            ensAddress='0x802747F918FC904e6586065147793AC71f882cC9';
+            publishedAtBlock = 636828;
             resolve();
             break;
           default:
@@ -90,13 +80,13 @@ export default ethereum = (function() {
       });
     })
   }
-  
+
   function initRegistrar() {
     reportStatus('Initializing ENS registrar...');
     return new Promise((resolve, reject) => {
       try {
         ens = new ENS(web3, customEnsAddress || ensAddress);
-        registrar = new Registrar(web3, ens, 'eth', 7, (err, result) => {
+        registrar = new Registrar(web3, ens, 'dapp', 3, (err, result) => {
           if (err) {
             return reject(err);
           }
@@ -159,12 +149,12 @@ export default ethereum = (function() {
         var namesCount;
 
         console.log(knownNames.length, ' known names loaded. Now checking for events since block ', searchFromBlock);
-        
+
         return new Promise((resolve, reject) => {
           var AuctionStartedEvent = registrar.contract.AuctionStarted({}, {fromBlock: searchFromBlock});
 
           AuctionStartedEvent.watch(function(error, result) {
-            if (!error) {            
+            if (!error) {
                 LocalStore.set('lastBlockLooked', result.blockNumber);
                 var hash = result.args.hash.replace('0x','').slice(0,12);
                 var nameObj = Names.findOne({hash: hash});
@@ -176,11 +166,11 @@ export default ethereum = (function() {
                 } else if((binarySearchNamesResult = binarySearchNames(result.args.hash)) !== null) {
                   name = binarySearchNamesResult;
                 }
-                
+
                 if (name) {
                   Names.upsert({ name: name }, {
                     $set: {
-                      fullname: name + '.eth',
+                      fullname: name + '.dapp',
                       registrationDate: Number(result.args.registrationDate.toFixed()),
                       hash: hash,
                       mode: mode || 'open',
@@ -202,7 +192,7 @@ export default ethereum = (function() {
                   }
 
                 }
-            } 
+            }
           });
 
           var HashRegisteredEvent = registrar.contract.HashRegistered({}, {fromBlock: searchFromBlock});
@@ -220,12 +210,12 @@ export default ethereum = (function() {
               } else if((binarySearchNamesResult = binarySearchNames(result.args.hash)) !== null) {
                 name = binarySearchNamesResult;
               }
-        
-              if (name) { 
+
+              if (name) {
                 Names.upsert({ hash: hash }, {
                     $set: {
                     name: name ? name : null,
-                    fullname: name ? name + '.eth' : null,
+                    fullname: name ? name + '.dapp' : null,
                     registrationDate: Number(result.args.registrationDate.toFixed()),
                     value: value,
                     mode: mode || 'owned',
@@ -236,16 +226,16 @@ export default ethereum = (function() {
 
               namesCount = Names.find({mode: 'owned', watched: {$not: true}}).count()
               if (namesCount > 100) {
-                // if more than 100 entries, remove 50 older ones              
+                // if more than 100 entries, remove 50 older ones
                 console.log('Registered names db reached', namesCount, 'removing some excess names');
                 var limit = Names.findOne({mode: 'owned', watched: {$not: true}}, {sort: {registrationDate: -1}, limit: 1, skip: 50});
                 Names.remove({name:'', watched: {$not: true}});
                 Names.remove({mode: 'owned', watched: {$not: true}, registrationDate: {$lt: limit.registrationDate }});
-              } 
-            } 
-          }); 
+              }
+            }
+          });
 
-          resolve(); 
+          resolve();
         })
       })
   }
@@ -256,7 +246,7 @@ export default ethereum = (function() {
       theresAnError
     }));
   }
-  
+
   function watchDisconnect() {
     function check() {
       if(web3.isConnected()) {
@@ -265,13 +255,13 @@ export default ethereum = (function() {
         initEthereum();
       }
     }
-    
+
     return new Promise((resolve, reject) => {
       check();
       resolve();
     })
   }
-  
+
   function initEthereum() {
     reportStatus('Connecting to Ethereum network...');
     return initWeb3()
@@ -293,7 +283,7 @@ export default ethereum = (function() {
 
         // add an interval to check on auctions every so ofter
         setInterval(updateRevealNames, 60000);
-             
+
         if (LocalStore && !LocalStore.get('mastersalt')) {
           if (window.crypto && window.crypto.getRandomValues) {
             var random = window.crypto.getRandomValues(new Uint32Array(2)).join('')
@@ -301,7 +291,7 @@ export default ethereum = (function() {
             var random = Math.floor(Math.random()*Math.pow(2,55)).toString();
           }
           LocalStore.set('mastersalt', Daefen(random));
-         } 
+         }
 
         reportStatus('Ready!', true);
       })
@@ -339,20 +329,20 @@ export default ethereum = (function() {
                 Session.set('searched', e.name);
             })
         })
-    }  
+    }
   }
 
   function updateRevealNames() {
       var cutoutDate = Math.floor(Date.now()/1000) + 48*60*60;
       var now = Math.floor(Date.now()/1000);
-      // keep updating 
+      // keep updating
       var names = Names.find({$or:[
           // any name I'm watching that is still on auction
           {registrationDate: {$gt: Math.floor(Date.now()/1000), $lt: cutoutDate}, name:{$gt: ''}, watched: true},
           // any name whose registration date has passed and isn't finalized
           {mode: {$nin: ['open', 'owned', 'forbidden']}, registrationDate: {$lt: now}, name:{$gt: ''}},
           // any name that is open or should be open by now
-          {mode: {$in: ['open', 'not-yet-available']}, availableDate: {$lt: now}, name:{$gt: ''}}, 
+          {mode: {$in: ['open', 'not-yet-available']}, availableDate: {$lt: now}, name:{$gt: ''}},
           // any name that I don't know the mode
           {mode: {$exists: false}, name:{$gt: ''}}
           ]}, {limit:100}).fetch();
@@ -363,22 +353,22 @@ export default ethereum = (function() {
           registrar.getEntry(e.name, (err, entry) => {
           if(!err && entry) {
               Names.upsert({name: e.name}, {$set: {
-                  mode: entry.mode, 
-                  value: entry.mode == 'owned' ? Number(web3.fromWei(entry.deed.balance.toFixed(), 'ether')) : 0, 
+                  mode: entry.mode,
+                  value: entry.mode == 'owned' ? Number(web3.fromWei(entry.deed.balance.toFixed(), 'ether')) : 0,
                   highestBid: entry.highestBid,
                   registrationDate: entry.registrationDate
-                }});            
-          }})        
+                }});
+          }})
       })
 
 
       // Clean up Pending Bids
-      _.each(PendingBids.find().fetch(), ( bid, i) => {  
-        // check for duplicates 
+      _.each(PendingBids.find().fetch(), ( bid, i) => {
+        // check for duplicates
         var dupBid = MyBids.find({shaBid:bid.shaBid}).fetch();
         if (dupBid && dupBid.shaBid == bid.shaBid && dupBid.secret == bid.secret){
             console.log('removing duplicate bid for', bid.name)
-            PendingBids.remove({_id: bid._id});            
+            PendingBids.remove({_id: bid._id});
         } else {
           registrar.contract.sealedBids.call(bid.owner, bid.shaBid, (err, result) => {
             if (err) {
@@ -387,26 +377,26 @@ export default ethereum = (function() {
               console.log('Insert bid', bid.name);
               //bid successfully submitted
               MyBids.insert(bid);
-              PendingBids.remove({_id: bid._id});            
+              PendingBids.remove({_id: bid._id});
             } else {
               // Check for pending bids that are too late
               var name = Names.findOne({name: bid.name});
-              var lastDay = Math.floor(new Date().getTime()) - (24 * 60 * 60 + 10 * 60) * 1000;      
+              var lastDay = Math.floor(new Date().getTime()) - (24 * 60 * 60 + 10 * 60) * 1000;
 
               if (name && name.mode == 'owned') {
                 console.log('Pending bid for', bid.name, 'has been removed because name is', name.mode);
-                PendingBids.remove({_id: bid._id});          
+                PendingBids.remove({_id: bid._id});
               } else if (bid.date < lastDay) {
                 console.log('A pending bid for', bid.name, 'is older than 24h and will be removed');
-                PendingBids.remove({_id: bid._id});                          
+                PendingBids.remove({_id: bid._id});
               }
             }
-          })        
+          })
         }
       })
 
       updateMistMenu();
-  }  
+  }
 
   return {
     init: initEthereum,
@@ -420,5 +410,3 @@ export default ethereum = (function() {
     }
   };
 }());
-
-

@@ -13,7 +13,7 @@ Template['components_nameStatus'].onRendered(function() {
   });
 
   }
-  
+
 })
 
 Template['components_nameStatus'].onCreated(function() {
@@ -30,9 +30,9 @@ Template['components_nameStatus'].onCreated(function() {
         if(!err && entry) {
           let prevInfo = TemplateVar.get(template, 'nameInfo');
           TemplateVar.set(template, 'loading', false);
-          
-          if (prevInfo 
-            && prevInfo.name === entry.name + '.eth'
+
+          if (prevInfo
+            && prevInfo.name === entry.name + '.dapp'
             && prevInfo.entry.availableDate
             && prevInfo.entry.mode === entry.mode) {
               //don't update unless name and status changed
@@ -44,13 +44,13 @@ Template['components_nameStatus'].onCreated(function() {
               entry.availableDate = timestamp.toFixed();
 
               TemplateVar.set(template, 'nameInfo', {
-                name: entry.name + '.eth',
+                name: entry.name + '.dapp',
                 entry
               })
             });
           } else {
             TemplateVar.set(template, 'nameInfo', {
-              name: entry.name + '.eth',
+              name: entry.name + '.dapp',
               entry
             })
           }
@@ -58,14 +58,14 @@ Template['components_nameStatus'].onCreated(function() {
           TemplateVar.set(template, 'name', entry.name);
           TemplateVar.set(template, 'status', 'status-' + entry.mode);
           TemplateVar.set(template, 'aside', 'aside-' + entry.mode);
-          
+
           // console.timeEnd('lookupName');
 
           Session.set('name', entry.name);
           if (entry.name) {
             // if the name has changed, add it to the history
             if (window.location.hash !== '#' + name) {
-              history.pushState(null, entry.name + '.eth', '#'+entry.name);
+              history.pushState(null, entry.name + '.dapp', '#'+entry.name);
             }
             // add to the location bar
             window.location.hash = entry.name;
@@ -87,11 +87,11 @@ Template['components_nameStatus'].onCreated(function() {
 
                 console.log('upsert', name);
                 Names.upsert({name: name}, {$set: {
-                  fullname: name + '.eth',
-                  mode: entry.mode, 
-                  registrationDate: entry.registrationDate, 
-                  value: value, 
-                  highestBid: entry.highestBid, 
+                  fullname: name + '.dapp',
+                  mode: entry.mode,
+                  registrationDate: entry.registrationDate,
+                  value: value,
+                  highestBid: entry.highestBid,
                   availableDate: entry.availableDate ? Number(entry.availableDate) :  0,
                   hash: entry.hash.replace('0x','').slice(0,12),
                   owner: entry.mode == 'owned' ? entry.deed.owner : '',
@@ -100,14 +100,14 @@ Template['components_nameStatus'].onCreated(function() {
               }
 
             }, 1000);
-          };    
+          };
         }
       });
     } catch(e) {
       TemplateVar.set(template, 'error', e);
     }
   }
-  
+
   this.autorun(function() {
     var searched = Session.get('searched');
     TemplateVar.set(template, 'error', false);
@@ -120,7 +120,7 @@ Template['components_nameStatus'].onCreated(function() {
     }, 10000);
     lookupName(searched);
   })
-  
+
   setInterval(() => lookupName(Session.get('searched')), 10000);
 });
 
@@ -136,36 +136,36 @@ Template['components_nameStatus'].helpers({
       return Session.get('searched');
     },
     fullName() {
-      //searched + .eth
+      //searched + .dapp
       return TemplateVar.get('nameInfo').name
-    }, 
+    },
     publicAuctions() {
       return Names.find({registrationDate: {$gt:0}, name:{$gt: '', $regex: /^.{7,}$/}, mode: {$nin: ['forbidden', 'not-yet-available']}},{sort: {registrationDate: -1}, limit: 48});
     },
     showExpiring() {
       var revealDeadline = Math.floor(new Date().getTime()/1000) + 48 * 60 * 60;
       return Names.find({registrationDate: {$gt: revealDeadline, $lt: revealDeadline + 24 * 60 * 60}, name:{$gt: '', $regex: /^.{7,}$/}},{sort: {registrationDate: 1}, limit: 48}).count() > 1;
-    }, 
+    },
     publicAuctionsAboutToExpire() {
       // subtracts 10 minutes from the reveal deadline, for good measure
-      var revealDeadline = Math.floor(new Date().getTime()/1000) + 48 * 60 * 60 + 10 * 60;      
+      var revealDeadline = Math.floor(new Date().getTime()/1000) + 48 * 60 * 60 + 10 * 60;
       return Names.find({registrationDate: {$gt: revealDeadline, $lt: revealDeadline + 24 * 60 * 60}, name:{$gt: '', $regex: /^.{7,}$/}},{sort: {registrationDate: 1}, limit: 48});
-    }, 
+    },
     knownNamesRegistered() {
       return Names.find({registrationDate: {$lt: Math.floor(Date.now()/1000)}, mode: {$nin: ['open', 'forbidden', 'not-yet-available']}, name:{$gt: ''}},{sort: {registrationDate: -1}, limit: 48});
     },
     namesRegistered() {
       return Names.find({value: {$gt:0}, mode: {$nin: ['open', 'forbidden', 'not-yet-available']}}).count() > 1;
-    }, 
+    },
     hasAuctions() {
-      var revealDeadline = Math.floor(new Date().getTime()/1000) + 48 * 60 * 60;      
+      var revealDeadline = Math.floor(new Date().getTime()/1000) + 48 * 60 * 60;
       return Names.find({registrationDate: {$gt: revealDeadline}, name:{$gt: ''}},{}).count() > 0;
     },
     medianValue() {
       var disputedNames = Names.find({value: {$gt:0.01}}, {sort: {value: 1}}).fetch();
       if (!disputedNames) return '---';
       return Math.round(100*disputedNames[Math.floor(disputedNames.length/2)].value)/100;
-    }, 
+    },
     percentageDisputed() {
       return Math.round(100 - (100 * Names.find({value: {$gt:0.01}}).count() / Names.find({value: {$gt:0}}).count())) || 0;
     },
@@ -175,7 +175,7 @@ Template['components_nameStatus'].helpers({
     recent(registrationDate) {
       // Check to see if it should be either on recently registered or started recently
       var hours = 60*60;
-      var diff = Math.floor(new Date().getTime()/1000) - registrationDate;      
+      var diff = Math.floor(new Date().getTime()/1000) - registrationDate;
       return ((diff > 0 && diff < 3 * hours)|| (diff < 5*60-5*24*hours)) ? 'recent' : '';
     },
     hasNode() {
@@ -221,7 +221,7 @@ Template['status-reveal'].helpers({
   },
   hasNode() {
     return LocalStore.get('hasNode');
-  }  
+  }
 })
 
 Template['status-reveal'].events({
@@ -232,17 +232,17 @@ Template['status-reveal'].events({
 })
 
 
-Template['aside-reveal'].helpers({ 
+Template['aside-reveal'].helpers({
   registrationDate() {
     if (Template.instance().data == null) return 'loading...';
     var m = moment(Template.instance().data.entry.registrationDate * 1000);
     return m.format('YYYY-MM-DD HH:mm');
-  }, 
+  },
   timeRemaining() {
     if (Template.instance().data == null) return '--h --m';
     var m = moment(Template.instance().data.entry.registrationDate * 1000);
     return Math.floor(m.diff(moment(), 'minutes')/60) + 'h ' + Math.floor(m.diff(moment(), 'minutes')%60) + 'm ' + Math.floor(m.diff(moment(), 'seconds')%60) + 's';
-    
+
   },
   highestBid() {
     if (Template.instance().data == null) return '--';
@@ -259,7 +259,7 @@ Template['aside-reveal'].helpers({
 
 Template['status-not-yet-available'].helpers({
   availableDate() {
-    // console.log('getAvailableDate: ', Template.instance().data.entry); 
+    // console.log('getAvailableDate: ', Template.instance().data.entry);
     if (Template.instance().data == null) return 'loading...';
 
     var m = moment(Template.instance().data.entry.availableDate * 1000);

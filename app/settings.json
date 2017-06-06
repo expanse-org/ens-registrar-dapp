@@ -3,16 +3,16 @@
         "geth": {
             "rpc": "",
             "rpcaddr": "localhost",
-            "rpcport": 8545,
+            "rpcport": 9656,
             "rpccorsdomain": "*",
             "unlock": 0,
             "verbosity": 5,
-            "genesis": "test-genesis.json",
+            "genesis": "",
             "etherbase": 0,
             "mine": "",
             "nodiscover": "",
-            "networkid": 1234,
-            "maxpeers": 0
+            "networkid": 1,
+            "maxpeers": 500
         }
     },
     "development": {
