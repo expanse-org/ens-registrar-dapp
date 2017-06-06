@@ -119,13 +119,13 @@ Template['status-owned'].helpers({
   finalValue() {
     const entry = Names.findOne({name: Session.get('searched')}); 
     if (!entry) return;
-    return Math.max(entry.value, 0.01);
+    return Math.max(entry.value, 1.00);
   },
   noBids() {
     var entry = TemplateVar.get('entryData')
     if (!entry) return true;  
     var val = entry.value;
-    return val.toFixed() <= 0.01;
+    return val.toFixed() <= 1.00;
   },
   renewalDate() {
     var years = 365 * 24 * 60 * 60 * 1000;

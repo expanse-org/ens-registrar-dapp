@@ -9,7 +9,7 @@ Template['components_newBid'].onRendered(function() {
   TemplateVar.set(template, 'anonymizer', 0.5);
   let launchRatio = (Date.now()/1000 - registrar.registryStarted.toFixed())/(8*7*24*60*60);
   console.log('launchRatio', launchRatio);
-  TemplateVar.set(template, 'bidAmount', 0.01);
+  TemplateVar.set(template, 'bidAmount', 1.00);
   TemplateVar.set(template, 'depositAmount', 0);
   TemplateVar.set(template, 'bidding-' + name, false);
 
@@ -190,7 +190,7 @@ Template['components_newBid'].events({
           console.log('Error', hashesArray, PendingBids.find({shaBid:bid.shaBid}).fetch());
 
           EthElements.Modal.question({
-            text: 'Bid failed to be created. No ether was sent. Please refresh your page and try again <br> If the problem persists, <a href="https://github.com/expanse-org/ens-registrar-dapp/issues/new"> submit an issue </a> ',
+            text: 'Bid failed to be created. No expanse was sent. Please refresh your page and try again <br> If the problem persists, <a href="https://github.com/expanse-org/ens-registrar-dapp/issues/new"> submit an issue </a> ',
             ok: true
           });
           PendingBids.remove({shaBid: bid.shaBid});
@@ -206,8 +206,8 @@ Template['components_newBid'].events({
   @event change input[name="fee"], input input[name="fee"]
   */
   'input input[name="bidAmount"]': function(e){
-    var maxAmount = TemplateVar.get('maxAmount') || 0.01;
-    var bidAmount = Math.min(Number(e.currentTarget.value) || 0.01, maxAmount);
+    var maxAmount = TemplateVar.get('maxAmount') || 1.00;
+    var bidAmount = Math.min(Number(e.currentTarget.value) || 1.00, maxAmount);
     TemplateVar.set('bidAmount', bidAmount);
   },
   /**

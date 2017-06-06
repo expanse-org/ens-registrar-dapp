@@ -83,7 +83,7 @@ Template['components_nameStatus'].onCreated(function() {
 
             timeout = setTimeout(function() {
               if (name === Session.get('searched')) {
-                var value = entry.mode == 'owned' ? Math.max(Number(web3.fromWei(entry.value.toFixed(), 'ether')), 0.01) : 0;
+                var value = entry.mode == 'owned' ? Math.max(Number(web3.fromWei(entry.value.toFixed(), 'ether')), 1.00) : 0;
 
                 console.log('upsert', name);
                 Names.upsert({name: name}, {$set: {
@@ -162,12 +162,12 @@ Template['components_nameStatus'].helpers({
       return Names.find({registrationDate: {$gt: revealDeadline}, name:{$gt: ''}},{}).count() > 0;
     },
     medianValue() {
-      var disputedNames = Names.find({value: {$gt:0.01}}, {sort: {value: 1}}).fetch();
+      var disputedNames = Names.find({value: {$gt:1.00}}, {sort: {value: 1}}).fetch();
       if (!disputedNames) return '---';
       return Math.round(100*disputedNames[Math.floor(disputedNames.length/2)].value)/100;
     },
     percentageDisputed() {
-      return Math.round(100 - (100 * Names.find({value: {$gt:0.01}}).count() / Names.find({value: {$gt:0}}).count())) || 0;
+      return Math.round(100 - (100 * Names.find({value: {$gt:1.00}}).count() / Names.find({value: {$gt:0}}).count())) || 0;
     },
     canBeInvalidated(name) {
       return name.length < 7;
