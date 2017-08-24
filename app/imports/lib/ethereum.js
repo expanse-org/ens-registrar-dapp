@@ -69,8 +69,8 @@ export default ethereum = (function() {
         switch(res.hash) {
           case '0x2fe75cf9ba10cb1105e1750d872911e75365ba24fdd5db7f099445c901fea895':
             network='main';
-            ensAddress='0x802747F918FC904e6586065147793AC71f882cC9';
-            publishedAtBlock = 636828;
+            ensAddress='0x632E60802E60E6598f9D6D836C8D1ec855eF9593';
+            publishedAtBlock = 717668;
             resolve();
             break;
           default:
@@ -86,7 +86,7 @@ export default ethereum = (function() {
     return new Promise((resolve, reject) => {
       try {
         ens = new ENS(web3, customEnsAddress || ensAddress);
-        registrar = new Registrar(web3, ens, 'dapp', 3, (err, result) => {
+        registrar = new Registrar(web3, ens, 'exp', 6, (err, result) => {
           if (err) {
             return reject(err);
           }
