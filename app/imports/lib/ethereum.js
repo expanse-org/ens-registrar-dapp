@@ -29,7 +29,7 @@ export default ethereum = (function() {
         let Web3 = require('web3');
         // web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
         // web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/NEefAs8cNxYfiJsYCQjc"));
-        web3 = new Web3(new Web3.providers.HttpProvider("http://staging.expanse.tech:9656"));
+        web3 = new Web3(new Web3.providers.HttpProvider("https://node.expanse.tech"));
         LocalStore.set('hasNode', false);
 
       }
@@ -69,7 +69,7 @@ export default ethereum = (function() {
         switch(res.hash) {
           case '0x2fe75cf9ba10cb1105e1750d872911e75365ba24fdd5db7f099445c901fea895':
             network='main';
-            ensAddress='0x632E60802E60E6598f9D6D836C8D1ec855eF9593';
+            ensAddress='0x632e60802e60e6598f9d6d836c8d1ec855ef9593';
             publishedAtBlock = 717668;
             resolve();
             break;
@@ -86,7 +86,7 @@ export default ethereum = (function() {
     return new Promise((resolve, reject) => {
       try {
         ens = new ENS(web3, customEnsAddress || ensAddress);
-        registrar = new Registrar(web3, ens, 'exp', 6, (err, result) => {
+        registrar = new Registrar(web3, ens, 'exp', 7, (err, result) => {
           if (err) {
             return reject(err);
           }
@@ -170,7 +170,7 @@ export default ethereum = (function() {
                 if (name) {
                   Names.upsert({ name: name }, {
                     $set: {
-                      fullname: name + '.dapp',
+                      fullname: name + '.exp',
                       registrationDate: Number(result.args.registrationDate.toFixed()),
                       hash: hash,
                       mode: mode || 'open',
@@ -215,7 +215,7 @@ export default ethereum = (function() {
                 Names.upsert({ hash: hash }, {
                     $set: {
                     name: name ? name : null,
-                    fullname: name ? name + '.dapp' : null,
+                    fullname: name ? name + '.exp' : null,
                     registrationDate: Number(result.args.registrationDate.toFixed()),
                     value: value,
                     mode: mode || 'owned',

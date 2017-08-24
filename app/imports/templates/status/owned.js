@@ -7,7 +7,7 @@ function getPublicAddrResolver() {
   let address;
   switch(network) {
     case 'ropsten': address = '0x4c641fb9bad9b60ef180c31f56051ce826d21a9a'; break;
-    case 'main': address = '0x1da022710df5002339274aadee8d58218e9d6ab5'; break;
+    case 'main': address = '0x0F02bd3aC5856D8D08deE70DeC5B4Ad7768DdCcE'; break;
     default: return null;
   }
   if (!publicAddrResolver) {
@@ -25,7 +25,7 @@ Template['status-owned'].onCreated(function() {
     if (!err && accounts && accounts.length > 0) {
       TemplateVar.set(template, 'accounts', accounts);
     }
-  })   
+  })
 
   function getContent(name) {
     var node = namehash(name)
@@ -54,7 +54,7 @@ Template['status-owned'].onCreated(function() {
     TemplateVar.set(template, 'name', name);
     var entryData = TemplateVar.get(template, 'entryData');
 
-    const entry = Names.findOne({name: name}); 
+    const entry = Names.findOne({name: name});
 
     if (typeof entry == 'undefined' || entry.owner == null || entry.fullname == null) {
       setTimeout(function() {
@@ -72,14 +72,14 @@ Template['status-owned'].onCreated(function() {
       if (!err) {
         // gets owner of current name
         TemplateVar.set(template, 'owner', owner);
-        
+
         ens.reverse(owner, (err, resolver) =>{
             // gets the name that owner goes by
             if (!err && resolver.name) {
-              resolver.name((err, name) => {   
+              resolver.name((err, name) => {
                 // check if claimed name is valid
-                console.log('reverseIsSet', name, entry.fullname)                     
-                TemplateVar.set(template, 'reverseIsSet', name == entry.fullname); 
+                console.log('reverseIsSet', name, entry.fullname)
+                TemplateVar.set(template, 'reverseIsSet', name == entry.fullname);
               });
             }
         })
@@ -100,7 +100,7 @@ Template['status-owned'].onCreated(function() {
         });
       }
     });
-     
+
     TemplateVar.set(template, 'entryData', entry);
   })
 });
@@ -122,11 +122,11 @@ Template['status-owned'].helpers({
     var entry = TemplateVar.get('entryData')
     if (!entry) return '';
     return entry.owner;
-  }, 
+  },
   isMine() {
     var entry = TemplateVar.get('entryData')
     var accounts = TemplateVar.get('accounts')
-    if (!entry || !accounts) return;    
+    if (!entry || !accounts) return;
     return accounts.indexOf(entry.owner) > -1;
   },
   registrationDate() {
@@ -149,13 +149,13 @@ Template['status-owned'].helpers({
     return Date.now() > releaseDate;
   },
   finalValue() {
-    const entry = Names.findOne({name: Session.get('searched')}); 
+    const entry = Names.findOne({name: Session.get('searched')});
     if (!entry) return;
     return Math.max(entry.value, 1.00);
   },
   noBids() {
     var entry = TemplateVar.get('entryData')
-    if (!entry) return true;  
+    if (!entry) return true;
     var val = entry.value;
     return val.toFixed() <= 1.00;
   },
@@ -211,17 +211,17 @@ Template['status-owned'].helpers({
   },
   canRefund() {
     var entry = TemplateVar.get('entryData');
-    if (!entry) return false;    
-    return entry.deedBalance !== entry.value;  
+    if (!entry) return false;
+    return entry.deedBalance !== entry.value;
   },
   finalizing() {
-    const name = Session.get('searched');    
+    const name = Session.get('searched');
     return TemplateVar.get('finalizing-'+name);
   },
   settingResolver(){
     const name = Session.get('searched');
     console.log('settingResolver', name, TemplateVar.get('settingResolver-'+name));
-    
+
     return TemplateVar.get('settingResolver-'+name);
 
   },
@@ -353,7 +353,7 @@ Template['status-owned'].events({
       return;
     }
     TemplateVar.set('settingAddr-'+fullname, true)
-    publicResolver.setAddr(ens.namehash(fullname), newAddr, {from: owner, gas: 300000}, 
+    publicResolver.setAddr(ens.namehash(fullname), newAddr, {from: owner, gas: 300000},
       Helpers.getTxHandler({
         onSuccess: () => Helpers.refreshStatus(),
         onDone: () => TemplateVar.set(template, 'settingAddr-'+fullname, false)
@@ -382,7 +382,7 @@ Template['status-owned'].events({
       return;
     }
     TemplateVar.set('settingHash', true)
-    publicResolver.setContent(ens.namehash(fullname), newHash, {from: owner, gas: 300000}, 
+    publicResolver.setContent(ens.namehash(fullname), newHash, {from: owner, gas: 300000},
       Helpers.getTxHandler({
         onSuccess: () => Helpers.refreshStatus(),
         onDone: () => TemplateVar.set(template, 'settingHash', false)
@@ -393,7 +393,7 @@ Template['status-owned'].events({
     const name = template.data.entry.name;
 
     console.log('template' ,template)
-    
+
     TemplateVar.set(template, 'finalizing-'+name, true);
     registrar.finalizeAuction(name, {
       from: template.data.entry.deed.owner,
@@ -407,19 +407,17 @@ Template['status-owned'].events({
 
 Template['aside-owned'].helpers({
   deedBalance() {
-    const entry = Names.findOne({name: Session.get('searched')}); 
+    const entry = Names.findOne({name: Session.get('searched')});
     return entry.deedBalance || '--' ;
   },
   finalValue() {
-    const entry = Names.findOne({name: Session.get('searched')}); 
+    const entry = Names.findOne({name: Session.get('searched')});
     if (!entry) return '--';
     return entry.value;
   },
   canRefund() {
-    const entry = Names.findOne({name: Session.get('searched')}); 
-    if (!entry) return false;    
-    return entry.deedBalance !== entry.value;  
-  } 
+    const entry = Names.findOne({name: Session.get('searched')});
+    if (!entry) return false;
+    return entry.deedBalance !== entry.value;
+  }
 })
-
-
