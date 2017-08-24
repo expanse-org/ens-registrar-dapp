@@ -5,19 +5,21 @@
     <h1 class="domain-name"><strong>{{TemplateVar.get 'name'}}</strong> is owned</h1>
   {{/if}}
 
-  <p>
-      This name was registered at <em>{{registrationDate}}</em>. Owner offered to pay up to <em>{{highestBid}} expanse</em>.
-  {{#if noBids}}
-      No other bid was above the minimum of <em>1.00 expanse</em>.
-  {{else}}
-      Second highest bid was <em>{{finalValue}} expanse</em>.
+  <p> 
+      This name was registered at <em>{{registrationDate}}</em>. Owner offered to pay up to <em>{{highestBid}} ether</em>. 
+  {{#if noBids}} 
+      No other bid was above the minimum of <em>0.01 ether</em>.
+  {{else}} 
+      Second highest bid was <em>{{finalValue}} ether</em>.
   {{/if}}
   </p>
 
   {{#if needsFinalization}}
-    <p>Owned by: {{> components_address addr=deedOwner}} </p>
-    {{#if hasOwner}}
-      <p>Currently assigned to: {{> components_address addr=owner}} </p>
+    {{#if hasENSOwner}}
+      <p>Owned by: {{> components_address addr=deedOwner}} </p>
+      <p>Currently managed by: {{> components_address addr=owner}} </p>
+    {{else}}
+      <p>Owned by: {{> components_address addr=deedOwner}} </p>
     {{/if}}
     <p>Needs to be renewed by: <strong>{{renewalDate}}</strong></p>
 
@@ -46,7 +48,7 @@
 
   {{else}}
 
-    <p>Owned by: {{> components_address addr=owner}} </p>
+    <p>Owned by: {{> components_address addr=deedOwner}} </p>
     <p>Needs to be renewed by: <strong>{{renewalDate}}</strong></p>
 
 
@@ -57,8 +59,8 @@
         <h3>Main Expanse address:</h3>
         {{#if (TemplateVar.get 'editingAddr')}}
           {{> dapp_addressInput }} <br>
-
-          {{#if (TemplateVar.get 'settingAddr')}}
+          
+          {{#if (TemplateVar.get 'settingAddress')}}
             <button class="dapp-block-button disabled dapp-small" disabled>Applying...</button>
             <button class="dapp-block-button disabled dapp-small" disabled>Cancel</button>
           {{else}}
@@ -69,11 +71,11 @@
         {{else}}
           {{#if records.addr}}
             {{> components_address addr=records.addr }} <br><br>
-            {{#if isMine}}
-              <button class="dapp-block-button edit-addr dapp-small">Edit</button>
-            {{/if}}
           {{else}}
-            <span>not set</span>
+            <span>Address not set</span>
+          {{/if}}
+          {{#if isMine}}
+            <br/><button class="dapp-block-button edit-addr dapp-small">Edit</button>
           {{/if}}
         {{/if}}
       </p>
@@ -92,13 +94,14 @@
           {{/if}}
 
         {{else}}
-          {{#if records.content}}
-            <a href="bzz://{{records.content}}/">bzz://{{records.content}}/</a> <br><br>
-            {{#if isMine}}
-              <button class="dapp-block-button edit-hash dapp-small">Edit</button>
-            {{/if}}
+          {{#if hasContent}}
+            <a href="bzz:/{{content}}/">bzz://{{content}}/</a> <br>
+            <a href="http://swarm-gateways.net/bzz:/{{content}}/"> (click here if your browser doesn't support hash content addressing)</a> <br><br>
           {{else}}
-            <span>not set</span>
+            <span>Content not set</span><br/>
+          {{/if}}
+          {{#if isMine}}
+            <button class="dapp-block-button edit-hash dapp-small">Edit</button>
           {{/if}}
         {{/if}}
 
@@ -156,8 +159,27 @@
          <p>If you don't want to hold this name anymore, you'll be able to release it in <strong> {{releaseDate}}</strong> and get <strong>{{finalValue}} expanse</strong> back.</p>
         {{/if}}
 
-    </div>
+        <hr>    
+        <h3> Set reverse record </h3>
+        <p> This allows someone looking at <strong>{{deedOwner}}</strong> to know it wants to mainly be identified with <strong>{{name}}</strong>.  <br></p>
+        
+        {{#unless TemplateVar.get 'reverseIsSet'}}
+          {{#if claiming}}
+          <button class="dapp-block-button disabled dapp-small" disabled>Setting it up...</button>
+          {{else}}
+          <button class="dapp-block-button claim dapp-small"> Associate account to name </button>
+          {{/if}}
+        {{else}}
+          <button class="dapp-block-button disabled dapp-small" disabled>Account is set to this name</button>
+        {{/unless}}
+        <br>
+            
+      </div>
     {{/if}}  <!-- /if mine -->
+
+    
+
+
   {{/if}}   <!-- /if needsFinalizing -->
 
     {{#if hasBids}}

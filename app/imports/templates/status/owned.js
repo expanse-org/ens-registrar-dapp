@@ -27,6 +27,26 @@ Template['status-owned'].onCreated(function() {
     }
   })   
 
+  function getContent(name) {
+    var node = namehash(name)
+    var resolverAddress = ens.resolver(node);
+    if (resolverAddress === '0x0000000000000000000000000000000000000000') {
+      return "0x0000000000000000000000000000000000000000000000000000000000000000";
+    }
+    return resolverContract.at(resolverAddress).content(node);
+  }
+
+    // // namehash('addr.reverse') = 'd1fc7a8be8c2cba3af74a24ebe54bbde1d4708b33c472dfda6209bfa347264c7'
+    // var reverseRegistrar = ;
+
+  ens.owner('addr.reverse' , (err, res) => {
+    if (!err) {
+      var reverseRegistrarContract = web3.eth.contract([{"constant":false,"inputs":[{"name":"owner","type":"address"},{"name":"resolver","type":"address"}],"name":"claimWithResolver","outputs":[{"name":"node","type":"bytes32"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"owner","type":"address"}],"name":"claim","outputs":[{"name":"node","type":"bytes32"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"ens","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"defaultResolver","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"}],"name":"node","outputs":[{"name":"ret","type":"bytes32"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"name","type":"string"}],"name":"setName","outputs":[{"name":"node","type":"bytes32"}],"payable":false,"type":"function"},{"inputs":[{"name":"ensAddr","type":"address"},{"name":"resolverAddr","type":"address"}],"payable":false,"type":"constructor"}]);
+
+      TemplateVar.set(template, 'reverseRegistrar', reverseRegistrarContract.at(res));
+    }
+  });
+
   template.autorun(() => {
     const name = Session.get('searched');
     if (prevName == name) return;
@@ -48,9 +68,21 @@ Template['status-owned'].onCreated(function() {
     TemplateVar.set(template, 'hasSetResolver', false);
     TemplateVar.set(template, 'owner', entry.owner);
 
-    ens.owner(entry.fullname , (err, res) => {
+    ens.owner(entry.fullname , (err, owner) => {
       if (!err) {
-        TemplateVar.set(template, 'owner', res);
+        // gets owner of current name
+        TemplateVar.set(template, 'owner', owner);
+        
+        ens.reverse(owner, (err, resolver) =>{
+            // gets the name that owner goes by
+            if (!err && resolver.name) {
+              resolver.name((err, name) => {   
+                // check if claimed name is valid
+                console.log('reverseIsSet', name, entry.fullname)                     
+                TemplateVar.set(template, 'reverseIsSet', name == entry.fullname); 
+              });
+            }
+        })
       }
     });
     ens.resolver(entry.fullname, (err, res) => {
@@ -63,7 +95,7 @@ Template['status-owned'].onCreated(function() {
         });
         res.content((err, content) => {
           if (!err) {
-            TemplateVar.set(template, 'content', content);
+            TemplateVar.set(template, 'content', content.replace('0x', ''));
           }
         });
       }
@@ -83,14 +115,14 @@ Template['status-owned'].helpers({
   owner() {
     return TemplateVar.get('owner')
   },
-  hasOwner() {
+  hasENSOwner() {
     return Number(TemplateVar.get('owner')) > 0;
   },
   deedOwner() {
     var entry = TemplateVar.get('entryData')
     if (!entry) return '';
     return entry.owner;
-  },
+  }, 
   isMine() {
     var entry = TemplateVar.get('entryData')
     var accounts = TemplateVar.get('accounts')
@@ -141,10 +173,16 @@ Template['status-owned'].helpers({
     return web3.fromWei(val, 'ether');
   },
   content() {
-    return TemplateVar.get('content') == '0x' ? 'not set' : TemplateVar.get('content') ;
+    return TemplateVar.get('content') == '0x' ? 'not set' : TemplateVar.get('content').replace('0x','');
+  },
+  hasContent() {
+    return TemplateVar.get('content') != 0  ;
   },
   transferring() {
     return TemplateVar.get('transferring');
+  },
+  claiming() {
+    return TemplateVar.get('claiming');
   },
   releasing() {
     return TemplateVar.get('releasing');
@@ -163,7 +201,7 @@ Template['status-owned'].helpers({
   needsFinalization() {
     var entry = TemplateVar.get('entryData');
     var owner = TemplateVar.get('owner');
-    if (!entry) return;
+    if (!entry) return true;
     return owner !== entry.owner;
   },
   refund() {
@@ -177,7 +215,21 @@ Template['status-owned'].helpers({
     return entry.deedBalance !== entry.value;  
   },
   finalizing() {
-    return TemplateVar.get('finalizing');
+    const name = Session.get('searched');    
+    return TemplateVar.get('finalizing-'+name);
+  },
+  settingResolver(){
+    const name = Session.get('searched');
+    console.log('settingResolver', name, TemplateVar.get('settingResolver-'+name));
+    
+    return TemplateVar.get('settingResolver-'+name);
+
+  },
+  settingAddress(){
+    const name = Session.get('searched');
+    console.log('settingAddr', name, TemplateVar.get('settingAddr-'+name));
+    return TemplateVar.get('settingAddr-'+name);
+
   }
 })
 
@@ -206,7 +258,7 @@ Template['status-owned'].events({
             content: 'Could not transfer name',
             duration: 5
           });
-          TemplateVar.set(template, 'releasing', false);
+          TemplateVar.set(template, 'transferring', false);
       }
       })
     );
@@ -233,6 +285,31 @@ Template['status-owned'].events({
     })
     );
   },
+  'click .claim': function(e, template) {
+    const owner = TemplateVar.get('owner');
+    const name = template.data.entry.name;
+
+
+    const reverseRegistrar = TemplateVar.get(template, 'reverseRegistrar');
+
+    TemplateVar.set(template, 'claiming', true);
+    reverseRegistrar.setName(name+'.eth', { from: owner, gas: 300000 },
+      Helpers.getTxHandler({
+        onSuccess: () => GlobalNotification.warning({
+          content: 'Association was completed',
+          duration: 5
+      }),
+        onDone: () => TemplateVar.set(template, 'claiming', false),
+        onError: () => {
+          GlobalNotification.error({
+            content: 'Could not make reverse record',
+            duration: 5
+          });
+          TemplateVar.set(template, 'claiming', false);
+      }
+    })
+    );
+  },
   /*
     This would point the name to a public resolver,
     which supports the addr record type.
@@ -249,11 +326,11 @@ Template['status-owned'].events({
       });
       return;
     }
-    TemplateVar.set('settingResolver', true);
+    TemplateVar.set('settingResolver-'+fullname, true);
     ens.setResolver(fullname, publicResolver.address, {from: owner, gas: 300000},
       Helpers.getTxHandler({
         onSuccess: () => Helpers.refreshStatus(),
-        onDone: () => TemplateVar.set(template, 'settingResolver', false)
+        onDone: () => TemplateVar.set(template, 'settingResolver-'+fullname, false)
       })
     );
   },
@@ -275,11 +352,11 @@ Template['status-owned'].events({
       });
       return;
     }
-    TemplateVar.set('settingAddr', true)
+    TemplateVar.set('settingAddr-'+fullname, true)
     publicResolver.setAddr(ens.namehash(fullname), newAddr, {from: owner, gas: 300000}, 
       Helpers.getTxHandler({
         onSuccess: () => Helpers.refreshStatus(),
-        onDone: () => TemplateVar.set(template, 'settingAddr', false)
+        onDone: () => TemplateVar.set(template, 'settingAddr-'+fullname, false)
       })
     )
   },
@@ -317,12 +394,12 @@ Template['status-owned'].events({
 
     console.log('template' ,template)
     
-    TemplateVar.set(template, 'finalizing', true);
+    TemplateVar.set(template, 'finalizing-'+name, true);
     registrar.finalizeAuction(name, {
       from: template.data.entry.deed.owner,
       gas: 200000
     }, Helpers.getTxHandler({
-      onDone: () => TemplateVar.set(template, 'finalizing', false),
+      onDone: () => TemplateVar.set(template, 'finalizing-'+name, false),
       onSuccess: () => Helpers.refreshStatus()
     }));
   }

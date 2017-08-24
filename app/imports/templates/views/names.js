@@ -11,8 +11,10 @@ Template['view_names'].helpers({
   active() {
     return Names.find({watched:true, mode: {$in: ['owned', 'auction', 'reveal']}},{sort: {registrationDate: 1}});
   },
-  inactive() {
-    return Names.find({watched:true, mode: {$in: ['not-yet-available', 'open']}},{sort: {availableDate: 1}});  },
+  mode(mode) {
+    if (mode == 'owned') return Names.find({watched:true, mode: 'owned'},{sort: {name: 1}});  
+    return Names.find({watched:true, mode: mode},{sort: {availableDate: 1}});  
+  },
   watchesNames() {
     return Names.find({watched:true}).count() > 0;
   }, 
