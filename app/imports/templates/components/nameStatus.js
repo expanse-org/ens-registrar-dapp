@@ -33,7 +33,7 @@ Template['components_nameStatus'].onCreated(function() {
           TemplateVar.set(template, 'loading', false);
 
           if (prevInfo
-            && prevInfo.name === entry.name + '.dapp'
+            && prevInfo.name === entry.name + '.exp'
             && prevInfo.entry.availableDate
             && prevInfo.entry.mode === entry.mode) {
               //don't update unless name and status changed
@@ -47,13 +47,13 @@ Template['components_nameStatus'].onCreated(function() {
               entry.availableDate = timestamp.toFixed();
 
               TemplateVar.set(template, 'nameInfo', {
-                name: entry.name + '.dapp',
+                name: entry.name + '.exp',
                 entry
               })
             });
           } else {
             TemplateVar.set(template, 'nameInfo', {
-              name: entry.name + '.dapp',
+              name: entry.name + '.exp',
               entry
             })
           }
@@ -68,7 +68,7 @@ Template['components_nameStatus'].onCreated(function() {
           if (entry.name) {
             // if the name has changed, add it to the history
             if (window.location.hash !== '#' + name) {
-              history.pushState(null, entry.name + '.dapp', '#'+entry.name);
+              history.pushState(null, entry.name + '.exp', '#'+entry.name);
             }
             // add to the location bar
             window.location.hash = entry.name;
@@ -90,7 +90,7 @@ Template['components_nameStatus'].onCreated(function() {
 
                 console.log('upsert', name);
                 Names.upsert({name: name}, {$set: {
-                  fullname: name + '.dapp',
+                  fullname: name + '.exp',
                   mode: entry.mode,
                   registrationDate: entry.registrationDate,
                   value: value,
@@ -139,7 +139,7 @@ Template['components_nameStatus'].helpers({
       return Session.get('searched');
     },
     fullName() {
-      //searched + .dapp
+      //searched + .exp
       return TemplateVar.get('nameInfo').name
     },
     publicAuctions() {
@@ -205,7 +205,7 @@ Template['status-forbidden-can-invalidate'].onCreated(function() {
 
 Template['status-forbidden-can-invalidate'].events({
   'click button.invalidate': function(e) {
-    e.preventDefault();        
+    e.preventDefault();
     name = Session.get('searched');
     TemplateVar.set('invalidating', true);
 

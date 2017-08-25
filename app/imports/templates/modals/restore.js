@@ -88,7 +88,7 @@ Template['modals_restore'].events({
           insertCount++;
         };
         console.log('bid inserted', bid)
-        Names.upsert({name: bid.name}, { $set: {fullname: bid.name + '.dapp', watched: true}});
+        Names.upsert({name: bid.name}, { $set: {fullname: bid.name + '.exp', watched: true}});
 
       })
       if (pendingBids) {
@@ -99,7 +99,7 @@ Template['modals_restore'].events({
             insertCount++;
           };
           console.log('bid inserted', bid)
-          Names.upsert({name: bid.name}, { $set: {fullname: bid.name + '.dapp', watched: true}});
+          Names.upsert({name: bid.name}, { $set: {fullname: bid.name + '.exp', watched: true}});
 
         })
       }

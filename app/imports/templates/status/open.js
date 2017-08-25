@@ -47,7 +47,7 @@ Template['status-open'].events({
       }, Helpers.getTxHandler({
         onDone: () => TemplateVar.set(template, 'opening-' + name, false),
         onSuccess: () => {
-          Names.upsert({name: name},{$set: {fullname: name + ".dapp", mode: 'open', watched: true}});
+          Names.upsert({name: name},{$set: {fullname: name + ".exp", mode: 'open', watched: true}});
           Helpers.refreshStatus();
         }
       }));

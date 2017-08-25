@@ -1,6 +1,6 @@
-# Ethereum Name Service Registrar DApp
+# Expanse Name Service Registrar DApp
 
-This app allows you to register a .dapp domain name, for use in expanse decentralized applications and compatible blockchain browsers.
+This app allows you to register a .exp domain name, for use in expanse decentralized applications and compatible blockchain browsers.
 
 Check [expanse.domains](https://expanse.domains/) for more information about the ENS.
 
